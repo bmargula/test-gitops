@@ -1,6 +1,20 @@
 cluster:
   name: aks-zeiss-lab
 
+externalServices:
+  tempo:
+    host: tempo-distributor.monitoring.svc.cluster.local
+    port: 4317
+    protocol: grpc
+  mimir:
+    host: mimir-gateway.monitoring.svc.cluster.local
+    port: 80
+    protocol: http
+  loki:
+    host: loki-gateway.monitoring.svc.cluster.local
+    port: 80
+    protocol: http
+
 destinations:
   - name: loki
     type: loki
