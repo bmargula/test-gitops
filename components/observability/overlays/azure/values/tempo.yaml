@@ -1,0 +1,63 @@
+# --- TEMPO APPLICATION CONFIG (Das hat gefehlt!) ---
+tempo:
+  structuredConfig:
+    ingester:
+      lifecycler:
+        ring:
+          replication_factor: 1 # <--- DAS IST DER FIX!
+    distributor:
+      ring:
+        kvstore:
+          store: memberlist
+    memberlist:
+      join_members:
+        # Ersetze <DEIN-SERVICE-NAME> mit dem Ergebnis aus Schritt 1
+        # Wichtig: "dns+" davor und ":7946" dahinter!
+        - "dns+tempo-gossip-ring.monitoring.svc.cluster.local:7946"
+
+    # Azure Storage Config (innerhalb der App Config)
+    storage:
+      trace:
+        backend: azure
+        azure:
+          storage_account_name: "zeisslgtm29111"
+          container_name: tempo-traces
+          use_federated_token: true
+          # Keine Auth-Parameter (Workload Identity Automatik)
+
+# --- HELM CHART CONFIG ---
+
+# Workload Identity Injection
+serviceAccount:
+  create: true
+  name: tempo
+  annotations:
+    azure.workload.identity/client-id: "01345136-720d-4f6c-8ddc-f737d6bd021e"
+
+global:
+  podLabels:
+    azure.workload.identity/use: "true"
+
+# Lab-Optimierung (Pods)
+ingester:
+  replicas: 1
+distributor:
+  replicas: 1
+compactor:
+  replicas: 1
+querier:
+  replicas: 1
+query_frontend:
+  replicas: 1
+memcached:
+  enabled: false
+
+traces:
+  otlp:
+    grpc:
+      enabled: true
+    http:
+      enabled: true
+
+multitenancy:
+  enabled: false

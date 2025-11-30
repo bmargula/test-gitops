@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lgtm-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # ACHTUNG: Hier gleich DEINE GitHub URL eintragen!
+    repoURL: https://github.com/bmargula/test-gitops.git
+    targetRevision: main
+    path: components/observability/overlays/azure
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

@@ -1,0 +1,63 @@
+# 1. PERSISTENZ (Die Festplatte)
+# Speichert User, Passwörter, installierte Plugins und manuell erstellte Dashboards.
+persistence:
+  enabled: true
+  size: 10Gi
+  # Auf Azure AKS wird hierfür automatisch eine Managed Disk provisioniert.
+
+# Admin Passwort fixieren (optional, aber praktisch)
+adminPassword: "admin"
+
+# 2. PROVISIONING (Die Konfiguration als Code)
+# Hier definieren wir die Data Sources fest.
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      # --- LOKI (Logs) ---
+      - name: Loki
+        type: loki
+        url: http://loki-gateway.monitoring.svc.cluster.local
+        access: proxy
+        isDefault: false
+        jsonData:
+          derivedFields:
+            # Cooler Trick: Macht TraceIDs in Logs klickbar und springt zu Tempo!
+            - datasourceUid: tempo
+              matcherRegex: "traceID=(\\w+)"
+              name: TraceID
+              url: "$${__value.raw}"
+
+      # --- MIMIR (Metrics) ---
+      - name: Mimir
+        type: prometheus
+        # WICHTIG: Die URL, die wir vorhin mühsam gefunden haben
+        url: http://mimir-gateway.monitoring.svc.cluster.local/prometheus
+        access: proxy
+        isDefault: true # Wird als Standard für Dashboards genutzt
+        jsonData:
+          httpMethod: POST
+          timeInterval: "15s"
+
+      # --- TEMPO (Tracing) ---
+      - name: Tempo
+        type: tempo
+        # WICHTIG: Port 3100 für Query Frontend
+        url: http://tempo-query-frontend.monitoring.svc.cluster.local:3200
+        access: proxy
+        uid: tempo # Wichtig für die Verknüpfung mit Loki
+        jsonData:
+          tracesToLogsV2:
+            # Erlaubt den Sprung von Trace -> Log
+            datasourceUid: "Loki"
+            tags: ["cluster", "namespace", "pod"]
+            filterByTraceID: false
+            filterBySpanID: false
+          nodeGraph:
+            enabled: true
+          search:
+            hide: false
+
+# Damit Azure den LoadBalancer behält
+service:
+  type: LoadBalancer

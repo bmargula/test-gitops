@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: monitoring
+
+resources:
+  - ../../../base
+
+helmCharts:
+  # LOKI
+  - name: loki
+    repo: https://grafana.github.io/helm-charts
+    version: 6.6.2
+    releaseName: loki
+    valuesFile: values/loki.yaml
+
+  # TEMPO
+  - name: tempo-distributed
+    repo: https://grafana.github.io/helm-charts
+    version: 1.9.0
+    releaseName: tempo
+    valuesFile: values/tempo.yaml
+
+  # MIMIR
+  - name: mimir-distributed
+    repo: https://grafana.github.io/helm-charts
+    version: 5.3.0
+    releaseName: mimir
+    valuesFile: values/mimir.yaml
+
+  # ALLOY
+  - name: k8s-monitoring
+    repo: https://grafana.github.io/helm-charts
+    version: 1.0.0 # oder höher, prüfen!
+    releaseName: k8s-monitoring
+    valuesFile: values/alloy.yaml
+
+  # GRAFANA
+  - name: grafana
+    repo: https://grafana.github.io/helm-charts
+    version: 8.0.0
+    releaseName: grafana
+    valuesFile: values/grafana.yaml

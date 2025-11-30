@@ -1,0 +1,92 @@
+mimir:
+  structuredConfig:
+    common:
+      storage:
+        backend: azure
+        azure:
+          account_name: "zeisslgtm29111"
+          # use_federated_token: true  <-- GELOESCHT, da Mimir das automatisch macht
+
+    blocks_storage:
+      backend: azure
+      azure:
+        container_name: mimir-blocks
+
+    ruler_storage:
+      backend: azure
+      azure:
+        container_name: mimir-ruler
+
+    alertmanager_storage:
+      backend: azure
+      azure:
+        container_name: mimir-alertmanager
+
+# Globaler Service Account (Bleibt gleich)
+serviceAccount:
+  create: true
+  name: mimir
+  annotations:
+    azure.workload.identity/client-id: "01345136-720d-4f6c-8ddc-f737d6bd021e"
+
+# Workload Identity Injection sicherstellen
+global:
+  podLabels:
+    azure.workload.identity/use: "true"
+
+minio:
+  enabled: false
+
+# Komponenten Config (Bleibt gleich)
+ingester:
+  replicas: 1
+  podLabels:
+    azure.workload.identity/use: "true"
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 100m
+
+distributor:
+  replicas: 1
+  podLabels:
+    azure.workload.identity/use: "true"
+  resources:
+    requests:
+      memory: 256Mi
+
+querier:
+  replicas: 1
+  podLabels:
+    azure.workload.identity/use: "true"
+  resources:
+    requests:
+      memory: 256Mi
+
+query_frontend:
+  replicas: 1
+  podLabels:
+    azure.workload.identity/use: "true"
+
+store_gateway:
+  replicas: 1
+  podLabels:
+    azure.workload.identity/use: "true"
+  resources:
+    requests:
+      memory: 256Mi
+
+ruler:
+  replicas: 1
+  podLabels:
+    azure.workload.identity/use: "true"
+
+alertmanager:
+  replicas: 1
+  podLabels:
+    azure.workload.identity/use: "true"
+
+compactor:
+  replicas: 1
+  podLabels:
+    azure.workload.identity/use: "true"

@@ -1,0 +1,43 @@
+loki:
+  # Keine Multi-Tenancy (vereinfacht die Abfragen, kein "Org-ID" Header nötig)
+  auth_enabled: false
+
+  commonConfig:
+    replication_factor: 1 # Wichtig: Wir haben nur 1 Node, keine Redundanz möglich
+
+  schemaConfig:
+    configs:
+      - from: 2024-04-01
+        store: tsdb       # Neuer Index-Typ (schneller als BoltDB)
+        object_store: s3  # Wir speichern in S3 (unserem MinIO)
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+
+  storage:
+    type: s3
+    bucketNames:
+      chunks: loki-data
+      ruler: loki-data
+      admin: loki-data
+    s3:
+      # Hier zeigen wir auf den MinIO Service innerhalb des Clusters
+      endpoint: http://minio.monitoring.svc.cluster.local:9000
+      accessKeyId: admin
+      secretAccessKey: password123
+      s3ForcePathStyle: true # Zwingend für MinIO (anders als bei AWS)
+      insecure: true         # Wir nutzen HTTP intern
+
+# "SimpleScalable" trennt Lesen und Schreiben, ist aber handhabbar
+deploymentMode: SimpleScalable
+
+# Wir begrenzen die Instanzen für deinen Mac
+read:
+  replicas: 1
+write:
+  replicas: 1
+backend:
+  replicas: 1
+gateway:
+  replicas: 1
