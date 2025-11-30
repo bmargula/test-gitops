@@ -31,7 +31,7 @@ helmCharts:
   # ALLOY
   - name: k8s-monitoring
     repo: https://grafana.github.io/helm-charts
-    version: 1.0.0 # oder höher, prüfen!
+    version: 3.6.1 # oder höher, prüfen!
     releaseName: k8s-monitoring
     valuesFile: values/alloy.yaml
 
