@@ -9,7 +9,7 @@ externalServices:
   prometheus:
     host: mimir-gateway.monitoring.svc.cluster.local
     port: 80
-    protocol: http
+    protocol: remote_write
   loki:
     host: loki-gateway.monitoring.svc.cluster.local
     port: 80
