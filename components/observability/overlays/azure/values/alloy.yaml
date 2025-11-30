@@ -6,7 +6,7 @@ externalServices:
     host: tempo-distributor.monitoring.svc.cluster.local
     port: 4317
     protocol: grpc
-  mimir:
+  prometheus:
     host: mimir-gateway.monitoring.svc.cluster.local
     port: 80
     protocol: http
